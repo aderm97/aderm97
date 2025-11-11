@@ -1,0 +1,49 @@
+{
+  "targets": [
+    "https://example.com",
+    "https://test.example.com"
+  ],
+  "scan_options": {
+    "timeout": 10,
+    "verify_ssl": false,
+    "follow_redirects": true,
+    "max_retries": 3
+  },
+  "tests": {
+    "ssl_tls": true,
+    "security_headers": true,
+    "cookie_security": true,
+    "cors_policy": true,
+    "http_methods": true,
+    "common_paths": true,
+    "input_validation": true,
+    "information_disclosure": true
+  },
+  "common_paths": [
+    "/.git/config",
+    "/.env",
+    "/admin",
+    "/administrator",
+    "/phpmyadmin",
+    "/backup",
+    "/backup.zip",
+    "/backup.sql",
+    "/.DS_Store",
+    "/web.config",
+    "/config.php",
+    "/.htaccess",
+    "/robots.txt",
+    "/sitemap.xml"
+  ],
+  "reporting": {
+    "output_format": "json",
+    "output_directory": "reports",
+    "include_timestamp": true,
+    "verbose": true
+  },
+  "authentication": {
+    "enabled": false,
+    "type": "bearer",
+    "token": ""
+  }
+}

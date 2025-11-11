@@ -1,0 +1,6 @@
+# Target URLs - one per line
+# Lines starting with # are comments
+
+https://example.com
+https://test.example.com
+https://staging.example.com
