@@ -1,298 +1,464 @@
-# Web Application Security Scanner
+# Low-Hanging Fruit Web Security Scanner
 
-An automated security testing tool for external-facing web applications. This script performs comprehensive security assessments covering common vulnerabilities and security misconfigurations.
+An automated security testing tool focusing on **easily exploitable vulnerabilities** in external-facing web applications. This scanner prioritizes quick wins - common misconfigurations and security issues that attackers exploit first.
 
-## Features
+## Why Focus on Low-Hanging Fruit?
 
-### Security Tests Performed
+**80% of successful attacks exploit simple, preventable vulnerabilities:**
+- Missing security headers (quick fix, high impact)
+- Exposed configuration files and backups (critical data leakage)
+- Information disclosure through headers and errors (helps attackers)
+- Common misconfigurations (often overlooked)
+- Header injection attacks (easy to test and exploit)
 
-1. **SSL/TLS Configuration**
-   - Protocol version verification
-   - Cipher suite analysis
-   - Certificate validation
-   - Detection of weak protocols (SSLv3, TLSv1.0, TLSv1.1)
+This tool helps you find and fix these issues **before attackers do**.
 
-2. **HTTP Security Headers**
-   - Strict-Transport-Security (HSTS)
-   - X-Content-Type-Options
-   - X-Frame-Options
-   - Content-Security-Policy
-   - X-XSS-Protection
-   - Referrer-Policy
-   - Detection of information disclosure headers
+## Key Features - Easy to Find, Easy to Fix
 
-3. **Cookie Security**
-   - Secure flag validation
-   - HttpOnly flag verification
-   - SameSite attribute checking
-   - CSRF vulnerability assessment
+### 1. **Security Headers Analysis** (HIGH PRIORITY)
+Missing security headers are the #1 low-hanging fruit vulnerability.
 
-4. **CORS Policy Analysis**
-   - Access-Control-Allow-Origin validation
-   - Credential exposure checks
-   - Origin reflection detection
+**Checks:**
+- **HSTS** - Prevents SSL stripping attacks
+- **X-Frame-Options** - Stops clickjacking
+- **Content-Security-Policy** - Blocks XSS and data injection
+- **X-Content-Type-Options** - Prevents MIME sniffing
+- Information disclosure headers (Server, X-Powered-By, etc.)
+- Cache-Control issues
 
-5. **HTTP Methods Testing**
-   - Dangerous method detection (PUT, DELETE, TRACE)
-   - XST (Cross-Site Tracing) vulnerability check
-   - OPTIONS method analysis
+**Example Fix:**
+```
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+X-Frame-Options: DENY
+Content-Security-Policy: default-src 'self'
+X-Content-Type-Options: nosniff
+```
 
-6. **Common Path Enumeration**
-   - Sensitive file detection (.git, .env, backup files)
-   - Admin panel discovery
-   - Configuration file exposure
-   - Directory listing vulnerabilities
+### 2. **Exposed Files & Directories** (CRITICAL)
+Scans for commonly exposed sensitive resources:
 
-7. **Input Validation Testing**
-   - Basic XSS payload testing
-   - Reflected input detection
-   - Error-based information disclosure
+**Version Control:**
+- `.git/` - Full source code exposure
+- `.svn/` - SVN repository leakage
 
-8. **Information Disclosure**
-   - Error message leakage
-   - Stack trace exposure
-   - Verbose error pages
+**Backups:**
+- `backup.zip`, `backup.sql`, `db_backup.sql`
+- `dump.sql`, `site-backup.zip`
+
+**Configuration:**
+- `.env` - Environment variables (API keys, passwords)
+- `config.php`, `web.config`
+- `wp-config.php` - WordPress database credentials
+- `phpinfo.php` - Full server configuration
+
+**Admin Panels:**
+- `/admin`, `/administrator`
+- `/phpmyadmin`, `/cpanel`
+- `/wp-admin`
+
+**Logs:**
+- `error.log`, `access.log`, `application.log`
+
+### 3. **Header Injection Attacks**
+Tests for header manipulation vulnerabilities:
+
+- **Host Header Injection** - Can lead to password reset poisoning
+- **X-Forwarded-Host Injection** - Bypasses security controls
+- **X-Forwarded-For Manipulation** - IP spoofing
+- **Referer Reflection** - Potential XSS vector
+
+### 4. **Clickjacking Protection**
+Quick test for frame protection:
+- X-Frame-Options validation
+- CSP frame-ancestors checking
+- Provides immediate fix recommendations
+
+### 5. **Information Disclosure**
+Detects information leakage that helps attackers:
+
+- SQL error messages
+- Stack traces and debug output
+- Path disclosure in errors
+- Sensitive data in HTML comments
+- Directory listing enabled
+- Verbose error pages
+
+### 6. **HTTP Method Security**
+Tests for dangerous HTTP methods:
+
+- **PUT** - File upload capability
+- **DELETE** - Resource deletion
+- **TRACE** - Cross-Site Tracing (XST) attacks
+- Attempts actual exploitation to verify
+
+### 7. **CORS Misconfigurations**
+Identifies CORS issues that allow data theft:
+
+- Wildcard origins (`Access-Control-Allow-Origin: *`)
+- Reflected arbitrary origins
+- Credentials with wildcard (CRITICAL)
+
+### 8. **Open Redirect Vulnerabilities**
+Tests common redirect parameters:
+- `url`, `redirect`, `next`, `return`, `goto`, etc.
+- Used in phishing and OAuth attacks
+
+### 9. **SSL/TLS Weaknesses**
+Checks for outdated protocols:
+- TLS 1.0 / 1.1 support
+- HTTP usage (no HTTPS)
 
 ## Installation
 
 ### Prerequisites
-
-- Python 3.7 or higher
-- pip package manager
+- Python 3.7+
+- pip
 
 ### Setup
 
-1. Clone the repository:
 ```bash
+# Clone repository
 git clone https://github.com/aderm97/aderm97.git
 cd aderm97
-```
 
-2. Install dependencies:
-```bash
+# Install dependencies
 pip install -r requirements.txt
-```
 
-3. Make the script executable (Linux/Mac):
-```bash
+# Make executable
 chmod +x web_security_scanner.py
 ```
 
 ## Usage
 
-### Basic Scan
+### Quick Scan
 
-Scan a single URL:
 ```bash
 python web_security_scanner.py -u https://example.com
 ```
 
-### Generate JSON Report
+### Generate Detailed Report
 
-Save scan results to a JSON file:
 ```bash
 python web_security_scanner.py -u https://example.com -o report.json
 ```
 
-### Scan Multiple Targets
+### Scan Multiple Sites
 
-Create a file with target URLs (one per line):
 ```bash
+# Create targets file
+echo "https://site1.com" > targets.txt
+echo "https://site2.com" >> targets.txt
+
+# Scan all
 python web_security_scanner.py -f targets.txt -o reports/
 ```
 
-### Command Line Options
+### Command Options
 
 ```
 usage: web_security_scanner.py [-h] [-u URL] [-f FILE] [-o OUTPUT] [--timeout TIMEOUT]
 
-Web Application Security Scanner
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -u URL, --url URL     Target URL to scan
-  -f FILE, --file FILE  File containing list of URLs to scan
-  -o OUTPUT, --output OUTPUT
-                        Output file/directory for JSON report
-  --timeout TIMEOUT     Request timeout in seconds (default: 10)
+Options:
+  -u, --url URL         Target URL to scan
+  -f, --file FILE       File with URLs (one per line)
+  -o, --output OUTPUT   JSON report output file/directory
+  --timeout TIMEOUT     Request timeout (default: 10s)
 ```
 
-### Examples
+## Understanding Output
 
-#### Single Target with Report
-```bash
-python web_security_scanner.py -u https://example.com -o example_report.json
+### Severity Levels
+
+The scanner categorizes issues by severity:
+
+- **[CRITICAL]** - Immediate action required (exposed secrets, critical misconfig)
+- **[HIGH]** - Should be fixed soon (missing headers, exposed admin panels)
+- **[MEDIUM]** - Important but lower risk (info disclosure, cache issues)
+- **[LOW]** - Minor issues (verbose errors, missing best practices)
+- **[✓]** - Test passed, security control present
+- **[i]** - Informational message
+
+### Example Output
+
+```
+======================================================================
+Low-Hanging Fruit Web Security Scanner
+Focusing on Easy-to-Exploit Vulnerabilities
+======================================================================
+
+[*] Common Misconfigurations & Exposed Resources
+----------------------------------------------------------------------
+[CRITICAL] Git repository exposed - source code leakage: /.git/HEAD
+[CRITICAL] Environment config exposed - may contain secrets: /.env
+[HIGH] Admin panel accessible: /admin
+[HIGH] PHPInfo page exposed: /phpinfo.php
+
+[*] Security Headers Analysis (HIGH PRIORITY)
+----------------------------------------------------------------------
+[HIGH] HSTS not set - vulnerable to SSL stripping attacks
+  [i]  Fix: Add: Strict-Transport-Security: max-age=31536000; includeSubDomains
+[HIGH] X-Frame-Options not set - vulnerable to clickjacking
+  [i]  Fix: Add: X-Frame-Options: DENY or SAMEORIGIN
+[MEDIUM] Server version disclosed: nginx/1.18.0
+
+[*] Vulnerability Summary
+----------------------------------------------------------------------
+Total Issues Found: 6
+  Critical: 2
+  High: 3
+  Medium: 1
+  Low: 0
+
+⚠ CRITICAL issues found! Immediate action required.
 ```
 
-#### Multiple Targets from File
-```bash
-# Create targets.txt with your URLs
-echo "https://example.com" > targets.txt
-echo "https://test.example.com" >> targets.txt
+## Quick Fixes for Common Issues
 
-# Scan all targets
-python web_security_scanner.py -f targets.txt -o reports/
+### 1. Add Security Headers
+
+**Nginx:**
+```nginx
+add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+add_header X-Frame-Options "DENY" always;
+add_header X-Content-Type-Options "nosniff" always;
+add_header Content-Security-Policy "default-src 'self'" always;
 ```
 
-#### Custom Timeout
-```bash
-python web_security_scanner.py -u https://example.com --timeout 30
+**Apache:**
+```apache
+Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+Header always set X-Frame-Options "DENY"
+Header always set X-Content-Type-Options "nosniff"
+Header always set Content-Security-Policy "default-src 'self'"
 ```
 
-## Configuration
+**Node.js/Express:**
+```javascript
+const helmet = require('helmet');
+app.use(helmet());
+```
 
-You can customize the scanner behavior by creating a `config.json` file based on `config.example.json`:
+### 2. Hide Version Information
 
-```json
-{
-  "targets": [
-    "https://example.com"
-  ],
-  "scan_options": {
-    "timeout": 10,
-    "verify_ssl": false,
-    "follow_redirects": true,
-    "max_retries": 3
-  },
-  "tests": {
-    "ssl_tls": true,
-    "security_headers": true,
-    "cookie_security": true,
-    "cors_policy": true,
-    "http_methods": true,
-    "common_paths": true,
-    "input_validation": true,
-    "information_disclosure": true
-  }
+**Nginx:**
+```nginx
+server_tokens off;
+```
+
+**Apache:**
+```apache
+ServerTokens Prod
+ServerSignature Off
+```
+
+**PHP:**
+```php
+expose_php = Off
+```
+
+### 3. Block Sensitive Files
+
+**Nginx:**
+```nginx
+location ~ /\.(git|env|svn) {
+    deny all;
+    return 404;
+}
+
+location ~ \.(sql|zip|tar\.gz|bak)$ {
+    deny all;
+    return 404;
 }
 ```
 
-## Output
+**Apache:**
+```apache
+<DirectoryMatch "^/.*/\.(git|svn|env)">
+    Require all denied
+</DirectoryMatch>
 
-### Console Output
+<FilesMatch "\.(sql|zip|tar\.gz|bak)$">
+    Require all denied
+</FilesMatch>
+```
 
-The scanner provides color-coded console output:
-- **GREEN (✓)**: Test passed - security control is properly configured
-- **RED (✗)**: Test failed - security vulnerability detected
-- **YELLOW (!)**: Warning - potential security issue
-- **BLUE (i)**: Informational message
+### 4. Disable Dangerous HTTP Methods
 
-### JSON Report
-
-The `-o` option generates a detailed JSON report containing:
-- Target URL and timestamp
-- Complete test results for all security checks
-- Detected vulnerabilities and misconfigurations
-- SSL/TLS certificate information
-- HTTP headers and cookie attributes
-
-Example report structure:
-```json
-{
-  "target": "https://example.com",
-  "timestamp": "2025-11-11T10:30:00",
-  "tests": {
-    "ssl_tls": {
-      "protocol": "TLSv1.3",
-      "cipher": ["TLS_AES_256_GCM_SHA384", 256],
-      "weak_protocol": false
-    },
-    "security_headers": {
-      "Strict-Transport-Security": {
-        "present": true,
-        "value": "max-age=31536000"
-      }
-    }
-  }
+**Nginx:**
+```nginx
+if ($request_method !~ ^(GET|POST|HEAD)$ ) {
+    return 405;
 }
 ```
 
-## Security Testing Best Practices
+**Apache:**
+```apache
+<Limit TRACE>
+    Require all denied
+</Limit>
+```
 
-### Authorization
+### 5. Fix CORS Issues
 
-- **Only test applications you own or have explicit permission to test**
-- Unauthorized security testing may be illegal
-- Obtain written permission before scanning third-party websites
+```javascript
+// DO NOT use wildcard with credentials
+// Bad:
+res.header('Access-Control-Allow-Origin', '*');
+res.header('Access-Control-Allow-Credentials', 'true');
+
+// Good:
+const allowedOrigins = ['https://trusted-site.com'];
+const origin = req.headers.origin;
+if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+}
+```
+
+## Real-World Impact
+
+### Case Study: Missing Security Headers
+- **Issue**: No HSTS header
+- **Risk**: SSL stripping attacks on public WiFi
+- **Fix Time**: 2 minutes
+- **Impact**: Protects all users from MITM attacks
+
+### Case Study: Exposed .git Directory
+- **Issue**: `.git/` directory accessible
+- **Risk**: Complete source code + credentials exposure
+- **Fix Time**: 1 minute (add deny rule)
+- **Impact**: Prevents complete application compromise
+
+### Case Study: Information Disclosure
+- **Issue**: Server header shows "Apache/2.4.29 (Ubuntu)"
+- **Risk**: Attackers know exact version for exploit search
+- **Fix Time**: 30 seconds
+- **Impact**: Reduces attack surface
+
+## What This Scanner Does NOT Cover
+
+This scanner focuses on **non-invasive, quick checks**. It does NOT:
+
+- Perform deep application testing (use Burp Suite, OWASP ZAP)
+- Test authentication mechanisms (use specialized tools)
+- Perform SQL injection testing (use SQLMap)
+- Scan for all XSS variants (requires manual testing)
+- Test business logic flaws (requires human analysis)
+- Perform brute force attacks
+- Exploit vulnerabilities (only detects them)
+
+## Best Practices
+
+### Before Scanning
+
+1. **Get Permission** - Only scan systems you own or have written authorization to test
+2. **Review Scope** - Ensure target is appropriate for testing
+3. **Check Timing** - Consider running during off-peak hours
+
+### After Scanning
+
+1. **Prioritize** - Fix CRITICAL and HIGH issues first
+2. **Validate** - Verify fixes don't break functionality
+3. **Retest** - Run scanner again to confirm fixes
+4. **Document** - Keep records of findings and remediation
 
 ### Responsible Disclosure
 
-If you discover vulnerabilities:
-1. Report them to the website owner/security team
-2. Provide detailed information about the vulnerability
-3. Allow reasonable time for remediation
-4. Follow responsible disclosure practices
+If you find vulnerabilities in third-party systems:
+1. Report to security contact or website owner
+2. Provide detailed information
+3. Allow reasonable time for fix (90 days typical)
+4. Do not publicly disclose until patched
 
-### Rate Limiting
+## Integration with CI/CD
 
-- Be mindful of request rates to avoid impacting target servers
-- Use the `--timeout` option to control request timing
-- Consider running scans during off-peak hours
+### Run in GitHub Actions
 
-## Limitations
+```yaml
+name: Security Scan
+on: [push, pull_request]
 
-This tool provides automated basic security testing but should not replace:
-- Manual security assessments
-- Professional penetration testing
-- Comprehensive security audits
-- Specialized tools (SQLMap, Burp Suite, OWASP ZAP)
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run Security Scanner
+        run: |
+          pip install -r requirements.txt
+          python web_security_scanner.py -u https://staging.example.com -o report.json
+      - name: Upload Report
+        uses: actions/upload-artifact@v2
+        with:
+          name: security-report
+          path: report.json
+```
 
-The scanner performs non-invasive checks and does not:
-- Exploit vulnerabilities
-- Modify application data
-- Perform brute-force attacks
-- Execute advanced attack vectors
+### Fail Build on Critical Issues
 
-## Common Vulnerabilities Detected
+```bash
+#!/bin/bash
+python web_security_scanner.py -u https://staging.example.com -o report.json
 
-### OWASP Top 10 Coverage
+# Check for critical issues
+CRITICAL=$(jq '.vulnerability_count.critical' report.json)
+if [ "$CRITICAL" -gt 0 ]; then
+    echo "CRITICAL issues found! Failing build."
+    exit 1
+fi
+```
 
-- **A01:2021 - Broken Access Control**: Path enumeration, admin panel detection
-- **A02:2021 - Cryptographic Failures**: SSL/TLS configuration, cookie security
-- **A03:2021 - Injection**: Basic XSS testing, input validation
-- **A05:2021 - Security Misconfiguration**: Security headers, HTTP methods, error disclosure
-- **A07:2021 - Identification and Authentication Failures**: Cookie security attributes
-- **A08:2021 - Software and Data Integrity Failures**: CORS policy testing
+## Comparison with Other Tools
+
+| Feature | This Scanner | OWASP ZAP | Burp Suite | Nikto |
+|---------|-------------|-----------|------------|-------|
+| Low-hanging fruit focus | ✓ | ✗ | ✗ | ✓ |
+| Fast scan (< 1 min) | ✓ | ✗ | ✗ | ✗ |
+| Easy setup | ✓ | ✗ | ✗ | ✓ |
+| Header injection tests | ✓ | ✓ | ✓ | ✗ |
+| Exposed files | ✓ | ✓ | ✓ | ✓ |
+| Deep crawling | ✗ | ✓ | ✓ | ✓ |
+| Active exploitation | ✗ | ✓ | ✓ | ✗ |
+| Manual testing support | ✗ | ✓ | ✓ | ✗ |
+
+**Use this scanner for**: Quick wins, CI/CD integration, initial assessment
+**Use professional tools for**: Comprehensive pentesting, compliance audits
 
 ## Troubleshooting
 
-### SSL Certificate Errors
-
-If you encounter SSL certificate verification errors:
-```bash
-# The script already disables SSL verification for testing
-# This is intentional for security assessment purposes
-```
-
 ### Connection Timeouts
 
-Increase the timeout value:
 ```bash
 python web_security_scanner.py -u https://example.com --timeout 30
 ```
 
-### Permission Denied
+### SSL Errors
 
-Make the script executable:
-```bash
-chmod +x web_security_scanner.py
-```
+The scanner intentionally disables SSL verification for testing purposes. This allows testing of sites with self-signed certificates.
+
+### False Positives
+
+Some findings may be false positives:
+- Admin panels may be IP-restricted (still good to verify)
+- Some headers may be set by CDN/proxy
+- robots.txt is not a vulnerability (but check contents)
+
+Always verify findings manually.
 
 ## Contributing
 
-Contributions are welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+Contributions welcome! Focus areas:
+- Additional low-hanging fruit checks
+- Better detection accuracy
+- Performance improvements
+- Documentation improvements
 
 ## License
 
-This tool is provided for educational and authorized security testing purposes only.
+Educational and authorized security testing only.
 
 ## Disclaimer
 
-**IMPORTANT**: This tool is designed for legal security testing of applications you own or have explicit permission to test. Users are responsible for complying with all applicable laws and regulations. The authors assume no liability for misuse of this tool.
+**CRITICAL**: Only use on systems you own or have explicit written permission to test. Unauthorized security testing is illegal. The authors accept no liability for misuse.
 
 ## Author
 
@@ -300,19 +466,34 @@ This tool is provided for educational and authorized security testing purposes o
 
 ## Version
 
-1.0.0
+2.0.0 - Low-Hanging Fruit Edition
 
 ## Changelog
 
+### Version 2.0.0 (2025-11-11) - Low-Hanging Fruit Focus
+- Complete rewrite focusing on easily exploitable vulnerabilities
+- Added comprehensive header injection testing
+- Enhanced exposed file/directory detection (40+ paths)
+- Added severity-based vulnerability counting
+- Improved information disclosure detection
+- Added open redirect testing
+- Added clickjacking-specific testing
+- Enhanced CORS misconfiguration detection
+- Added vulnerability summary with severity breakdown
+- Improved output formatting with actionable recommendations
+- Added quick fix examples for common issues
+
 ### Version 1.0.0 (2025-11-11)
 - Initial release
-- SSL/TLS testing
-- Security headers validation
-- Cookie security checks
-- CORS policy analysis
-- HTTP methods testing
-- Common path enumeration
-- Input validation testing
-- Information disclosure detection
-- JSON report generation
-- Multi-target support
+- Basic security testing functionality
+
+## Additional Resources
+
+- [OWASP Top 10](https://owasp.org/www-project-top-ten/)
+- [SecurityHeaders.com](https://securityheaders.com/) - Test your headers
+- [Mozilla Observatory](https://observatory.mozilla.org/) - Security assessment
+- [OWASP Testing Guide](https://owasp.org/www-project-web-security-testing-guide/)
+
+---
+
+**Remember**: Security is a process, not a product. This scanner helps you find quick wins, but comprehensive security requires ongoing effort, testing, and vigilance.
