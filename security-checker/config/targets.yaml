@@ -1,0 +1,231 @@
+# FMDQ Network Infrastructure Security Assessment Configuration
+# Configure targets and scope for security scanning
+
+scope:
+  organization: "FMDQ"
+  assessment_type: "Network Infrastructure VAPT"
+  sites:
+    - "Exchange Place"
+    - "Production Site"
+    - "DR Site"
+
+# 1. Perimeter Security Targets
+perimeter:
+  targets:
+    internet_facing:
+      - ip: "217.117.13.209"
+        name: "INQ Digital Connection"
+        type: "internet_gateway"
+      - ip: "156.0.255.1"
+        name: "Production Internet Gateway 1"
+        type: "internet_gateway"
+      - ip: "156.0.255.2"
+        name: "Production Internet Gateway 2"
+        type: "internet_gateway"
+
+# 2. Firewall Security Targets
+firewall:
+  targets:
+    firewalls:
+      - ip: "154.113.146.117"
+        name: "Exchange Place Firewall Primary"
+        location: "Exchange Place"
+      - ip: "217.117.13.210"
+        name: "Exchange Place Firewall Secondary"
+        location: "Exchange Place"
+      - ip: "10.10.10.1"
+        name: "Production Firewall Primary"
+        location: "Production Site"
+      - ip: "10.10.10.2"
+        name: "Production Firewall Secondary"
+        location: "Production Site"
+      - ip: "10.11.10.1"
+        name: "DR Firewall Primary"
+        location: "DR Site"
+      - ip: "10.11.10.2"
+        name: "DR Firewall Secondary"
+        location: "DR Site"
+
+# 3. Network Segmentation Targets
+segmentation:
+  targets:
+    switches:
+      - ip: "10.100.10.1"
+        name: "Exchange Place Core Switch"
+        location: "Exchange Place"
+      - ip: "10.10.11.1"
+        name: "Production Core Switch Primary"
+        location: "Production Site"
+      - ip: "10.10.11.2"
+        name: "Production Core Switch Secondary"
+        location: "Production Site"
+      - ip: "10.11.11.1"
+        name: "DR Core Switch Primary"
+        location: "DR Site"
+      - ip: "10.11.11.2"
+        name: "DR Core Switch Secondary"
+        location: "DR Site"
+
+    segments:
+      - name: "Staff VPN Pool"
+        network: "10.45.45.0/24"
+        range: "10.45.45.20-10.45.45.150"
+        restricted_access: true
+      - name: "QEX VPN Pool"
+        network: "10.212.134.0/24"
+        range: "10.212.134.200-10.212.134.249"
+        restricted_access: true
+      - name: "Ebiashara Partner Network"
+        network: "10.85.85.0/24"
+        range: "10.85.85.1-10.85.85.10"
+        restricted_access: true
+      - name: "Kodek Partner Network"
+        network: "10.95.95.0/24"
+        range: "10.95.95.0-10.95.95.10"
+        restricted_access: true
+      - name: "OpenTelemetry Network"
+        network: "10.98.98.0/24"
+        range: "10.98.98.0-10.98.98.10"
+        restricted_access: true
+      - name: "PWC Network"
+        network: "10.86.86.0/24"
+        range: "10.86.86.10-10.86.86.12"
+        restricted_access: true
+
+# 4. VPN Security Targets
+vpn:
+  targets:
+    vpn:
+      - ip: "TBD"
+        name: "Staff VPN Gateway"
+        type: "ssl-vpn"
+        pool: "10.45.45.20-10.45.45.150"
+      - ip: "TBD"
+        name: "QEX VPN Gateway"
+        type: "ipsec"
+        pool: "10.212.134.200-10.212.134.249"
+
+# 5. Access Control & Wireless Targets
+access_control:
+  targets:
+    nac:
+      - ip: "196.168.5.247"
+        name: "Production NAC"
+        location: "Production Site"
+      - ip: "196.168.5.248"
+        name: "DR NAC"
+        location: "DR Site"
+
+    wireless:
+      - ip: "TBD"
+        name: "Exchange Place Wireless Controller"
+        location: "Exchange Place"
+
+    access_switches:
+      - ip: "TBD"
+        name: "Exchange Place Access Switches"
+        location: "Exchange Place"
+
+# 6. WAF Security Targets
+waf:
+  targets:
+    waf:
+      - name: "Production WAF"
+        target_url: "https://your-production-domain.com"
+        location: "Production Site"
+      - name: "DR WAF"
+        target_url: "https://your-dr-domain.com"
+        location: "DR Site"
+
+# 7. Azure Cloud Security
+azure:
+  subscription_id: "YOUR_SUBSCRIPTION_ID"
+  tenant_id: "YOUR_TENANT_ID"
+  targets:
+    resource_groups:
+      - "FMDQ-Production-RG"
+      - "FMDQ-DR-RG"
+
+# 8. Internal Penetration Testing
+pentest:
+  scope:
+    - "Credential attacks"
+    - "Lateral movement"
+    - "Privilege escalation"
+    - "Data exfiltration"
+  exclusions:
+    - "Production database servers during business hours"
+    - "NIBSS integration"
+    - "Main One ISP infrastructure"
+
+# 9. Monitoring & Incident Response
+monitoring:
+  siem:
+    - name: "Primary SIEM"
+      ip: "TBD"
+  targets:
+    log_sources:
+      - "All firewalls"
+      - "All switches"
+      - "VPN gateways"
+      - "NAC systems"
+      - "Domain controllers"
+      - "Critical servers"
+
+# 10. Compliance Checks
+compliance:
+  frameworks:
+    - "CBN IT Standards"
+    - "SEC Nigeria"
+    - "NDPR"
+    - "ISO 27001"
+  requirements:
+    - "Network segmentation"
+    - "Encryption standards"
+    - "Access controls"
+    - "Audit trails"
+    - "Business continuity"
+
+# Scan Configuration
+scan_config:
+  # Port scan timeout (seconds)
+  port_timeout: 3
+
+  # Connection timeout (seconds)
+  connection_timeout: 10
+
+  # Maximum threads for parallel scanning
+  max_threads: 10
+
+  # Scan intensity (low, medium, high)
+  # low: Basic checks only
+  # medium: Standard checks
+  # high: Comprehensive checks with aggressive testing
+  intensity: "medium"
+
+  # Enable/disable manual checks in report
+  include_manual_checks: true
+
+# Exclusions (DO NOT SCAN)
+exclusions:
+  networks:
+    - "Main One ISP networks"
+    - "NIBSS integration endpoints"
+
+  ip_addresses:
+    # Add specific IPs to exclude
+
+  time_windows:
+    # Avoid scanning during these times
+    - description: "Trading hours"
+      days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+      start_time: "09:00"
+      end_time: "17:00"
+      timezone: "Africa/Lagos"
+
+# Reporting
+reporting:
+  format: "html"  # html, json, pdf, csv
+  include_passed_checks: true
+  include_info_findings: true
+  severity_threshold: "low"  # Only report findings at or above this severity

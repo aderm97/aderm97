@@ -1,0 +1,30 @@
+# FMDQ Security Configuration Checker Requirements
+# Python 3.8+ required
+
+# Core dependencies
+PyYAML>=6.0
+
+# Optional dependencies for enhanced functionality
+
+# For PDF generation (optional)
+# weasyprint>=60.0
+
+# For Azure cloud security checks (optional)
+# azure-cli>=2.50.0
+# azure-identity>=1.12.0
+# azure-mgmt-network>=23.0.0
+# azure-mgmt-compute>=29.0.0
+# azure-mgmt-storage>=21.0.0
+
+# For advanced network scanning (optional)
+# python-nmap>=0.7.1
+# scapy>=2.5.0
+
+# For enhanced reporting (optional)
+# jinja2>=3.1.0
+# matplotlib>=3.7.0
+
+# Development dependencies (optional)
+# pytest>=7.0.0
+# black>=23.0.0
+# flake8>=6.0.0
