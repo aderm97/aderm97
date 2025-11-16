@@ -170,13 +170,14 @@ firefox reports/security_report_*.html
 |------|---------|------|
 | hping3 | Packet crafting | ~200 KB |
 | tcpdump | Packet capture | ~1 MB |
+| tshark | Protocol analyzer (CLI) | ~5 MB |
 
 ### Cloud Tools
 | Tool | Purpose | Size |
 |------|---------|------|
 | azure-cli | Azure security testing | ~60 MB |
 
-**Total Disk Space Required:** ~100-150 MB
+**Total Disk Space Required:** ~105-155 MB
 
 ## 🔐 Permission Requirements
 
@@ -211,7 +212,7 @@ sudo -v
 
 # Try manual installation
 sudo apt update
-sudo apt install nmap masscan nikto sslscan
+sudo apt install nmap masscan nikto sslscan tshark hping3
 ```
 
 ### "Homebrew not found" (macOS)
