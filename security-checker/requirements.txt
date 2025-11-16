@@ -52,6 +52,8 @@ PyYAML>=6.0
 #
 # NETWORK TESTING:
 #   - hping3: Advanced packet crafting
+#   - tshark: Network protocol analyzer (Wireshark CLI)
+#   - tcpdump: Packet capture and analysis
 #   - responder: LLMNR/NBT-NS/MDNS poisoner
 #   - crackmapexec: Swiss army knife for pentesting Windows/AD
 #   - enum4linux: Windows/Samba enumeration
@@ -70,7 +72,7 @@ PyYAML>=6.0
 #
 # Installation examples (Kali Linux / Ubuntu):
 #   sudo apt update
-#   sudo apt install nmap masscan nikto sslscan hping3 gobuster hydra nuclei
+#   sudo apt install nmap masscan nikto sslscan hping3 tshark tcpdump gobuster hydra nuclei
 #
 #   # testssl.sh (manual install)
 #   git clone https://github.com/drwetter/testssl.sh.git
@@ -84,7 +86,8 @@ PyYAML>=6.0
 #   sudo apt install sqlmap
 #
 # Installation (macOS with Homebrew):
-#   brew install nmap masscan nikto sslscan hping gobuster hydra
+#   brew install nmap masscan nikto sslscan hping gobuster hydra wireshark
+#   # Note: 'wireshark' package on macOS includes tshark CLI tool
 #
 # The security checker will automatically detect and use available tools,
 # falling back to basic Python-based checks if tools are not installed.

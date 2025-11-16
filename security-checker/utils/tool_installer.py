@@ -42,7 +42,7 @@ class ToolInstaller:
             'network_tools': {
                 'hping3': 'Advanced packet crafting tool',
                 'tcpdump': 'Network packet analyzer',
-                'wireshark': 'Network protocol analyzer (CLI)',
+                'tshark': 'Network protocol analyzer (Wireshark CLI)',
             },
             'password_tools': {
                 'hydra': 'Network login cracker',
@@ -273,7 +273,7 @@ class ToolInstaller:
         # Map tool names to package names if different
         package_map = {
             'hping3': 'hping3',
-            'wireshark': 'tshark',
+            'tshark': 'tshark',
             'azure-cli': 'azure-cli',
         }
 
