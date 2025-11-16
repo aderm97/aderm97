@@ -97,6 +97,33 @@ class SecurityChecker:
         self.logger.info("[1/11] Checking Connectivity & Security Tools...")
         results['findings']['connectivity'] = self._run_module('connectivity')
 
+        # Check if we can proceed with the scan
+        if not results['findings']['connectivity'].get('can_proceed', True):
+            self.logger.error("\n" + "=" * 80)
+            self.logger.error("SCAN ABORTED: Critical security tools are not installed")
+            self.logger.error("=" * 80)
+            self.logger.error("\nThe security scanner requires professional tools to perform")
+            self.logger.error("effective vulnerability assessments. Running without these tools")
+            self.logger.error("would produce incomplete and unreliable results.\n")
+            self.logger.info("Please install the required tools by running:")
+            self.logger.info("  python3 install_tools.py\n")
+
+            # Generate partial report with tool check results
+            results['summary'] = {
+                'total_checks': 1,
+                'passed': 0,
+                'failed': 1,
+                'warnings': 0,
+                'critical': 1,
+                'high': 0,
+                'medium': 0,
+                'low': 0,
+                'scan_aborted': True
+            }
+            results['scan_info']['end_time'] = datetime.now().isoformat()
+            results['scan_info']['duration'] = str(datetime.now() - self.start_time)
+            return results
+
         # 1. Perimeter Security Assessment
         self.logger.info("[2/11] Running Perimeter Security Assessment...")
         results['findings']['perimeter'] = self._run_module('perimeter')

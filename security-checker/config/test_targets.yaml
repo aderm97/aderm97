@@ -1,0 +1,76 @@
+# Test Configuration for Quick Scan
+scope:
+  organization: "FMDQ Test"
+  assessment_type: "Quick Test Scan"
+
+# Minimal test targets
+perimeter:
+  targets:
+    internet_facing:
+      - ip: "8.8.8.8"
+        name: "Google DNS Test"
+        type: "internet_gateway"
+
+firewall:
+  targets:
+    firewalls:
+      - ip: "8.8.8.8"
+        name: "Test Firewall"
+        location: "Test"
+
+segmentation:
+  targets:
+    switches: []
+    segments: []
+
+vpn:
+  targets:
+    vpn: []
+
+access_control:
+  targets:
+    nac: []
+    wireless: []
+    access_switches: []
+
+waf:
+  targets:
+    waf: []
+
+azure:
+  subscription_id: "test"
+  tenant_id: "test"
+  targets:
+    resource_groups: []
+
+pentest:
+  scope:
+    - "Test scope"
+  exclusions: []
+
+monitoring:
+  siem: []
+  targets:
+    log_sources: []
+
+compliance:
+  frameworks:
+    - "CBN IT Standards"
+
+scan_config:
+  port_timeout: 1
+  connection_timeout: 3
+  max_threads: 5
+  intensity: "low"
+  include_manual_checks: false
+
+exclusions:
+  networks: []
+  ip_addresses: []
+  time_windows: []
+
+reporting:
+  format: "html"
+  include_passed_checks: true
+  include_info_findings: true
+  severity_threshold: "low"

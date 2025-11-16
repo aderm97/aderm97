@@ -244,6 +244,10 @@ def run(config: Dict, logger) -> Dict[str, any]:
     total_count = len(findings['tools_available'])
     missing_tools = [tool for tool, avail in findings['tools_available'].items() if not avail]
 
+    # Define critical tools that are required for meaningful scans
+    critical_tools = ['nmap', 'testssl', 'sslscan', 'nikto']
+    critical_missing = [tool for tool in critical_tools if tool in missing_tools]
+
     # Display tools status
     if available_count == total_count:
         logger.info(f"  ✅ All {total_count} security tools are installed!")
@@ -255,21 +259,39 @@ def run(config: Dict, logger) -> Dict[str, any]:
             'finding': f'All {total_count} security tools available',
             'recommendation': 'Continue using professional security tools for comprehensive testing'
         })
+        findings['can_proceed'] = True
     else:
         logger.warning(f"  ⚠️  {available_count}/{total_count} security tools available")
         logger.warning(f"  Missing tools: {', '.join(missing_tools[:5])}" +
                       (f" (+{len(missing_tools)-5} more)" if len(missing_tools) > 5 else ""))
-        logger.info(f"\n  💡 To install missing tools, run:")
-        logger.info(f"     python3 install_tools.py\n")
 
-        findings['checks'].append({
-            'check': 'Security Tools Availability',
-            'target': 'Local System',
-            'status': 'warning',
-            'severity': 'low',
-            'finding': f'Only {available_count}/{total_count} security tools available. Missing: {", ".join(missing_tools)}',
-            'recommendation': 'Run "python3 install_tools.py" to install missing tools for enhanced scanning capabilities'
-        })
+        # Check if critical tools are missing
+        if critical_missing:
+            logger.error(f"\n  ❌ CRITICAL TOOLS MISSING: {', '.join(critical_missing)}")
+            logger.error(f"  Cannot perform effective security scans without these tools.\n")
+            logger.info(f"  💡 To install missing tools, run:")
+            logger.info(f"     python3 install_tools.py\n")
+            findings['can_proceed'] = False
+            findings['checks'].append({
+                'check': 'Security Tools Availability',
+                'target': 'Local System',
+                'status': 'failed',
+                'severity': 'critical',
+                'finding': f'Critical security tools missing: {", ".join(critical_missing)}. Cannot proceed with scan.',
+                'recommendation': 'Run "python3 install_tools.py" to install required security tools before scanning'
+            })
+        else:
+            logger.info(f"\n  💡 To install missing tools, run:")
+            logger.info(f"     python3 install_tools.py\n")
+            findings['can_proceed'] = True
+            findings['checks'].append({
+                'check': 'Security Tools Availability',
+                'target': 'Local System',
+                'status': 'warning',
+                'severity': 'low',
+                'finding': f'Only {available_count}/{total_count} security tools available. Missing: {", ".join(missing_tools)}',
+                'recommendation': 'Run "python3 install_tools.py" to install missing tools for enhanced scanning capabilities'
+            })
 
     # Log available tools in verbose mode
     if logger.level == 10:  # DEBUG level
