@@ -41,6 +41,7 @@ from modules import (
 # Import utilities
 from utils.report_generator import ReportGenerator
 from utils.logger import setup_logger
+from utils.tool_installer import ToolInstaller
 
 
 class SecurityChecker:
@@ -248,7 +249,7 @@ Examples:
 
     parser.add_argument('-c', '--config', help='Configuration file (YAML)')
     parser.add_argument('-m', '--module', choices=[
-        'perimeter', 'firewall', 'segmentation', 'vpn',
+        'connectivity', 'perimeter', 'firewall', 'segmentation', 'vpn',
         'access_control', 'waf', 'azure', 'pentest',
         'monitoring', 'compliance'
     ], help='Run specific module')
@@ -260,8 +261,32 @@ Examples:
     parser.add_argument('--quick-scan', action='store_true', help='Run quick basic scan')
     parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output')
     parser.add_argument('--network', help='Target network CIDR for quick scan')
+    parser.add_argument('--skip-install', action='store_true',
+                       help='Skip automatic tool installation wizard')
+    parser.add_argument('--install-only', action='store_true',
+                       help='Only run tool installation wizard, then exit')
 
     args = parser.parse_args()
+
+    # Setup basic logger for installer
+    import logging
+    basic_logger = logging.getLogger('installer')
+    basic_logger.setLevel(logging.INFO)
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(logging.Formatter('%(message)s'))
+    basic_logger.addHandler(handler)
+
+    # Run tool installation wizard (unless skipped)
+    if not args.skip_install:
+        installer = ToolInstaller(basic_logger)
+        installer.run_installation_wizard()
+
+        # If --install-only, exit after installation
+        if args.install_only:
+            sys.exit(0)
+
+        # Add spacing before scan starts
+        print("\n")
 
     # Initialize checker
     checker = SecurityChecker(args.config, args.verbose)
