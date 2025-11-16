@@ -242,22 +242,41 @@ def run(config: Dict, logger) -> Dict[str, any]:
     logger.info("Checking security tools availability...")
     available_count = sum(1 for available in findings['tools_available'].values() if available)
     total_count = len(findings['tools_available'])
+    missing_tools = [tool for tool, avail in findings['tools_available'].items() if not avail]
 
-    findings['checks'].append({
-        'check': 'Security Tools Availability',
-        'target': 'Local System',
-        'status': 'info',
-        'severity': 'info',
-        'finding': f'{available_count}/{total_count} security tools available',
-        'recommendation': 'Install missing tools for comprehensive testing: ' +
-                         ', '.join([tool for tool, avail in findings['tools_available'].items() if not avail])
-    })
+    # Display tools status
+    if available_count == total_count:
+        logger.info(f"  ✅ All {total_count} security tools are installed!")
+        findings['checks'].append({
+            'check': 'Security Tools Availability',
+            'target': 'Local System',
+            'status': 'passed',
+            'severity': 'info',
+            'finding': f'All {total_count} security tools available',
+            'recommendation': 'Continue using professional security tools for comprehensive testing'
+        })
+    else:
+        logger.warning(f"  ⚠️  {available_count}/{total_count} security tools available")
+        logger.warning(f"  Missing tools: {', '.join(missing_tools[:5])}" +
+                      (f" (+{len(missing_tools)-5} more)" if len(missing_tools) > 5 else ""))
+        logger.info(f"\n  💡 To install missing tools, run:")
+        logger.info(f"     python3 install_tools.py\n")
 
-    # Log available tools
-    logger.info(f"  Available tools ({available_count}/{total_count}):")
-    for tool, available in findings['tools_available'].items():
-        status = "✓" if available else "✗"
-        logger.debug(f"    {status} {tool}")
+        findings['checks'].append({
+            'check': 'Security Tools Availability',
+            'target': 'Local System',
+            'status': 'warning',
+            'severity': 'low',
+            'finding': f'Only {available_count}/{total_count} security tools available. Missing: {", ".join(missing_tools)}',
+            'recommendation': 'Run "python3 install_tools.py" to install missing tools for enhanced scanning capabilities'
+        })
+
+    # Log available tools in verbose mode
+    if logger.level == 10:  # DEBUG level
+        logger.debug(f"\n  Tool Status:")
+        for tool, available in findings['tools_available'].items():
+            status = "✓" if available else "✗"
+            logger.debug(f"    {status} {tool}")
 
     # Check all configured targets
     all_targets = []
