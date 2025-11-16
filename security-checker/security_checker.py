@@ -25,6 +25,7 @@ from typing import Dict, List, Any
 
 # Import security modules
 from modules import (
+    connectivity,
     perimeter_security,
     firewall_security,
     network_segmentation,
@@ -53,6 +54,7 @@ class SecurityChecker:
         self.start_time = datetime.now()
 
         self.modules = {
+            'connectivity': connectivity,
             'perimeter': perimeter_security,
             'firewall': firewall_security,
             'segmentation': network_segmentation,
@@ -90,44 +92,48 @@ class SecurityChecker:
             'findings': {}
         }
 
+        # 0. Connectivity & Tool Check (FIRST - verify targets are reachable)
+        self.logger.info("[1/11] Checking Connectivity & Security Tools...")
+        results['findings']['connectivity'] = self._run_module('connectivity')
+
         # 1. Perimeter Security Assessment
-        self.logger.info("[1/10] Running Perimeter Security Assessment...")
+        self.logger.info("[2/11] Running Perimeter Security Assessment...")
         results['findings']['perimeter'] = self._run_module('perimeter')
 
         # 2. Firewall Security Testing
-        self.logger.info("[2/10] Running Firewall Security Testing...")
+        self.logger.info("[3/11] Running Firewall Security Testing...")
         results['findings']['firewall'] = self._run_module('firewall')
 
         # 3. Network Segmentation & Internal Security
-        self.logger.info("[3/10] Running Network Segmentation Checks...")
+        self.logger.info("[4/11] Running Network Segmentation Checks...")
         results['findings']['segmentation'] = self._run_module('segmentation')
 
         # 4. VPN Security Assessment
-        self.logger.info("[4/10] Running VPN Security Assessment...")
+        self.logger.info("[5/11] Running VPN Security Assessment...")
         results['findings']['vpn'] = self._run_module('vpn')
 
         # 5. Access Control & Wireless Security
-        self.logger.info("[5/10] Running Access Control Assessment...")
+        self.logger.info("[6/11] Running Access Control Assessment...")
         results['findings']['access_control'] = self._run_module('access_control')
 
         # 6. WAF Testing
-        self.logger.info("[6/10] Running WAF Security Testing...")
+        self.logger.info("[7/11] Running WAF Security Testing...")
         results['findings']['waf'] = self._run_module('waf')
 
         # 7. Azure Cloud Security
-        self.logger.info("[7/10] Running Azure Cloud Security Assessment...")
+        self.logger.info("[8/11] Running Azure Cloud Security Assessment...")
         results['findings']['azure'] = self._run_module('azure')
 
         # 8. Internal Penetration Testing
-        self.logger.info("[8/10] Running Internal Penetration Tests...")
+        self.logger.info("[9/11] Running Internal Penetration Tests...")
         results['findings']['pentest'] = self._run_module('pentest')
 
         # 9. Monitoring & Incident Response
-        self.logger.info("[9/10] Running Monitoring Assessment...")
+        self.logger.info("[10/11] Running Monitoring Assessment...")
         results['findings']['monitoring'] = self._run_module('monitoring')
 
         # 10. Compliance & Regulatory
-        self.logger.info("[10/10] Running Compliance Checks...")
+        self.logger.info("[11/11] Running Compliance Checks...")
         results['findings']['compliance'] = self._run_module('compliance')
 
         # Calculate statistics

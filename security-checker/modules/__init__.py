@@ -1,6 +1,7 @@
 """Security assessment modules for FMDQ infrastructure"""
 
 from . import (
+    connectivity,
     perimeter_security,
     firewall_security,
     network_segmentation,
@@ -14,6 +15,7 @@ from . import (
 )
 
 __all__ = [
+    'connectivity',
     'perimeter_security',
     'firewall_security',
     'network_segmentation',

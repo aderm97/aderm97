@@ -28,3 +28,63 @@ PyYAML>=6.0
 # pytest>=7.0.0
 # black>=23.0.0
 # flake8>=6.0.0
+
+# ==============================================================================
+# RECOMMENDED SECURITY TOOLS (install separately via OS package manager)
+# ==============================================================================
+# These professional security tools significantly enhance scan capabilities:
+#
+# PORT SCANNING & ENUMERATION:
+#   - nmap: Network exploration and security auditing
+#   - masscan: Ultra-fast port scanner
+#
+# SSL/TLS TESTING:
+#   - testssl.sh: Comprehensive SSL/TLS tester
+#   - sslscan: SSL/TLS scanner
+#   - sslyze: SSL configuration analyzer
+#
+# WEB APPLICATION TESTING:
+#   - nikto: Web server scanner
+#   - wafw00f: Web Application Firewall detection
+#   - sqlmap: SQL injection testing
+#   - gobuster: Directory/file bruteforcer
+#   - ffuf: Fast web fuzzer
+#
+# NETWORK TESTING:
+#   - hping3: Advanced packet crafting
+#   - responder: LLMNR/NBT-NS/MDNS poisoner
+#   - crackmapexec: Swiss army knife for pentesting Windows/AD
+#   - enum4linux: Windows/Samba enumeration
+#
+# CLOUD SECURITY:
+#   - az (Azure CLI): For Azure security checks
+#   - prowler: AWS/Azure security assessment
+#   - ScoutSuite: Multi-cloud security auditing
+#
+# PASSWORD ATTACKS:
+#   - hydra: Network logon cracker
+#   - medusa: Parallel password cracker
+#
+# VULNERABILITY SCANNING:
+#   - nuclei: Fast vulnerability scanner
+#
+# Installation examples (Kali Linux / Ubuntu):
+#   sudo apt update
+#   sudo apt install nmap masscan nikto sslscan hping3 gobuster hydra nuclei
+#
+#   # testssl.sh (manual install)
+#   git clone https://github.com/drwetter/testssl.sh.git
+#   cd testssl.sh
+#   sudo ln -s $(pwd)/testssl.sh /usr/local/bin/testssl.sh
+#
+#   # wafw00f
+#   sudo pip3 install wafw00f
+#
+#   # sqlmap
+#   sudo apt install sqlmap
+#
+# Installation (macOS with Homebrew):
+#   brew install nmap masscan nikto sslscan hping gobuster hydra
+#
+# The security checker will automatically detect and use available tools,
+# falling back to basic Python-based checks if tools are not installed.
